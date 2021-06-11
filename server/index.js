@@ -2,6 +2,7 @@ require("dotenv").config();
 var mongoose = require("mongoose");
 var express = require("express");
 var bodyParser = require("body-parser");
+const { getShortUrl } = require("./api/controller");
 var app = express();
 
 //If there is a .env file so it will read PORT variable if not then 5000
@@ -11,6 +12,7 @@ const PORT = process.env.PORT || 5000;
 mongoose.Promise = global.Promise;
 
 require("./api/models/Url");
+require("./api/models/Logging");
 
 mongoose
   .connect(process.env.DATABASE_URL, {
@@ -34,13 +36,15 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(require("cors")());
 //body parser middleware
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
-app.use("*", express.static("./client/build"));
+app.get("*", express.static("../client/build"));
 
 app.use("/api", require("./api"));
+app.get("/:short", getShortUrl);
 
 app.listen(PORT, function () {
   console.log("Running server on " + PORT);

@@ -10,7 +10,6 @@ const Url = new Schema(
     },
     short: {
       type: String,
-      required: true,
       unique: true,
       default: () => nanoid(10),
     },

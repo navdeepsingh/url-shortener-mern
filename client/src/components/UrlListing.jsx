@@ -1,16 +1,21 @@
 import React from "react";
+import { API_URL } from "../constants";
 
-const UrlListing = ({ urls }) => {
+const UrlListing = ({ shortUrls }) => {
   return (
     <div>
-      {urls.length > 0 && (
+      {shortUrls.length > 0 && (
         <>
-          {urls.map((url) => {
+          {shortUrls.map((url) => {
             return (
               <div>
                 <div>{url.full}</div>
                 <div>
-                  <a target="_blank" href={url.short}>
+                  <a
+                    target="_blank"
+                    href={`${API_URL}${url.short}`}
+                    rel="noreferrer"
+                  >
                     {url.short}
                   </a>
                 </div>

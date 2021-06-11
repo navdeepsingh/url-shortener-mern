@@ -1,4 +1,4 @@
-const Urls = require("./models/Url");
+const Url = require("./models/Url");
 const Logging = require("./models/Logging");
 
 const getApiStatus = (req, res, next) => {
@@ -6,7 +6,7 @@ const getApiStatus = (req, res, next) => {
 };
 
 const getUrls = (req, res, next) => {
-  Urls.find({})
+  Url.find({})
     .then((urls) => {
       if (urls !== null) {
         res.status(200).send(urls);
@@ -19,20 +19,20 @@ const getUrls = (req, res, next) => {
 
 const addUrl = (req, res, next) => {
   const data = {
-    title: req.body.title,
-    description: req.body.description,
-    date: req.body.date,
+    full: req.body.fullUrl,
+    logging_enabled: req.body.enableLogging,
+    expire: req.body.expire,
   };
-  Appointment.findOne({ date: data.date }).then((appointment) => {
-    if (appointment != null) {
+  Url.findOne({ full: data.full }).then((shortUrl) => {
+    if (shortUrl != null) {
       // If already exists
-      res.status(401).send({ message: "Appointment already exists." });
+      res.status(401).send({ message: "Url already exists." });
     } else {
-      // Create new appointment
-      new Appointment(data)
+      // Create new short url
+      new Url(data)
         .save()
-        .then((appointment) => {
-          res.status(200).send(appointment);
+        .then((shortUrl) => {
+          res.status(200).send(shortUrl);
         })
         .catch((err) => {
           console.log(err);
@@ -75,10 +75,23 @@ const deleteUrl = (req, res, next) => {
     );
 };
 
+const getShortUrl = (req, res, next) => {
+  const { short } = req.params;
+  Url.findOne({ short }).then((shortUrl) => {
+    // @TODO check if it expires then also show 400 error page
+    if (!shortUrl) {
+      res.status(400).send({ message: "Oops! Page not found" });
+      return;
+    }
+    res.status(200).redirect(shortUrl.full);
+  });
+};
+
 module.exports = {
   getApiStatus: getApiStatus,
   getUrls: getUrls,
   addUrl: addUrl,
   updateUrl: updateUrl,
   deleteUrl: deleteUrl,
+  getShortUrl: getShortUrl,
 };
