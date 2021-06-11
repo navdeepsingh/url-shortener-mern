@@ -5,8 +5,9 @@
 	"main": "server.js",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"start": "nodemon server.js",
-		"build": "cd client && npm install && npm run build && cd .. && npm install && npm start"
+		"dev": "nodemon server.js",
+		"start": "NODE_ENV=production nodemon server.js",
+		"build": "cd client && npm install && npm run build"
 	},
 	"author": "Navdeep Singh",
 	"license": "ISC",
