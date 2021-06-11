@@ -19,7 +19,7 @@ export function useGetShortUrls() {
         setLoading(false);
         setError(true);
       });
-  }, []);
+  }, [setShortUrls]);
 
-  return { loading, error, shortUrls, setShortUrls };
+  return { loading, error, setError, shortUrls, setShortUrls };
 }

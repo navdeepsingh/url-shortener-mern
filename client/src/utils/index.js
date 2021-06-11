@@ -1,8 +1,17 @@
-// export const expiresIn = (expireDate) => {
-//   currentDate = moment();
-//   const duration = moment.duration(expireDate.diff(currentDate));
-//   return duration.asDays();
-// };
+import moment from "moment";
+
+export const expiresIn = (expireDate) => {
+  const currentDate = moment();
+  const duration = moment(
+    moment.duration(moment(expireDate).diff(currentDate))
+  ).format("hh:mm");
+  return duration;
+};
+
+export const formatDate = (dateString) => {
+  const dateObject = new Date(dateString);
+  return dateObject;
+};
 
 export const client = async (
   endpoint,

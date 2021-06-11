@@ -17,7 +17,7 @@ const getUrls = (req, res, next) => {
     .catch((err) => res.status(401).send({ message: err }));
 };
 
-const addUrl = (req, res, next) => {
+const addUrl = async (req, res, next) => {
   const data = {
     full: req.body.fullUrl,
     logging_enabled: req.body.enableLogging,
@@ -32,6 +32,7 @@ const addUrl = (req, res, next) => {
       new Url(data)
         .save()
         .then((shortUrl) => {
+          console.log(shortUrl);
           res.status(200).send(shortUrl);
         })
         .catch((err) => {

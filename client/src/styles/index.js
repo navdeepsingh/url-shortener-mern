@@ -26,11 +26,8 @@ export const useStyles = makeStyles({
     fontSize: "1rem",
     padding: "0.5rem",
   },
-  todoTextCompleted: {
-    textDecoration: "line-through",
-  },
-  deleteTodo: {
-    visibility: "hidden",
+  table: {
+    marginTop: "2rem",
   },
   loading: {
     fontSize: "2rem",

@@ -1,31 +1,28 @@
-import React, { useState } from "react";
+import React from "react";
 import { useStyles } from "../styles";
 import DatePicker from "react-datepicker";
+import moment from "moment";
 import "react-datepicker/dist/react-datepicker.css";
-import { client } from "../utils";
-import { useGetShortUrls } from "../hooks/use-get-short-urls";
+import { client, formatDate } from "../utils";
 import { API_URL } from "../constants";
 
 import {
   Button,
-  Icon,
   Paper,
   Box,
   TextField,
-  Checkbox,
   FormControlLabel,
   Switch,
 } from "@material-ui/core";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 
-const UrlAdd = () => {
+const UrlAdd = ({ loading, error, setError, shortUrls, setShortUrls }) => {
   const classes = useStyles();
   const [state, setState] = React.useState({
     fullUrl: "",
     enableLogging: false,
     expire: null,
   });
-  const { loading, error, shortUrls, setShortUrls } = useGetShortUrls();
 
   const handleOnChange = (event) => {
     setState({
@@ -46,8 +43,20 @@ const UrlAdd = () => {
 
     client(API_URL + "url", {
       data: { fullUrl, enableLogging, expire },
-    }).then((shortUrl) => {
-      setShortUrls([shortUrl, ...shortUrls]);
+    })
+      .then((shortUrl) => {
+        setShortUrls([...shortUrls, shortUrl]);
+      })
+      .catch(({ message }) => {
+        setError(message);
+      });
+    /**
+     * Reset input fields
+     */
+    setState({
+      fullUrl: "",
+      enableLogging: false,
+      expire: null,
     });
   };
 
@@ -81,9 +90,14 @@ const UrlAdd = () => {
               name="expire"
               placeholderText="Expiration Date"
               selected={state.expire}
-              onChange={handleOnChange}
+              onChange={(pickedDate) => {
+                setState({
+                  ...state,
+                  expire: formatDate(pickedDate),
+                });
+              }}
               showTimeSelect
-              dateFormat="yyyy-mm-dd hh:mm:ss"
+              dateFormat="yyyy-MM-dd HH:mm:ss"
               className={classes.datepicker}
             />
           </Box>
