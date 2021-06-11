@@ -1,0 +1,1 @@
+This project was bootstrapped with [MERN BoilerPlate](https://www.npmjs.com/package/mern-boilerplate).
