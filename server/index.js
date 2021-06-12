@@ -43,7 +43,10 @@ app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 app.get("*", express.static("../client/build"));
 
+// All API routes defined here
 app.use("/api", require("./api"));
+
+// Route to handle shorten special url
 app.get("/:short", getShortUrl);
 
 app.listen(PORT, function () {
