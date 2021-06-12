@@ -1,29 +1,29 @@
+const Mongoose = require("mongoose");
 const Url = require("./models/Url");
 const Logging = require("./models/Logging");
+const moment = require("moment");
 
 const getApiStatus = (req, res, next) => {
   return res.status(200).send({ message: "API Working" });
 };
 
-const getUrls = (req, res, next) => {
-  Url.find({})
-    .then((urls) => {
-      if (urls !== null) {
-        res.status(200).send(urls);
-      } else {
-        res.status(401).send({ message: "No Urls exists" });
-      }
-    })
-    .catch((err) => res.status(401).send({ message: err }));
+const getUrls = async (req, res, next) => {
+  const response = await Url.find({}).sort({ createdAt: -1 });
+  res.status(200);
+  res.json(response);
 };
 
 const addUrl = async (req, res, next) => {
-  const data = {
-    full: req.body.fullUrl,
-    logging_enabled: req.body.enableLogging,
-    expire: req.body.expire,
-  };
-  Url.findOne({ full: data.full }).then((shortUrl) => {
+  const { fullUrl: full, enableLogging: logging_enabled, expire } = req.body;
+  const data = { full, logging_enabled, expire };
+
+  if (typeof full !== "string") {
+    res.status(400);
+    res.json({ message: "invalid 'text' expected string" });
+    return;
+  }
+
+  Url.findOne({ full }).then((shortUrl) => {
     if (shortUrl != null) {
       // If already exists
       res.status(401).send({ message: "Url already exists." });
@@ -43,31 +43,11 @@ const addUrl = async (req, res, next) => {
   });
 };
 
-const updateUrl = (req, res, next) => {
-  const dataToBeUpdated = {
-    title: req.body.title,
-    description: req.body.description,
-  };
-  Appointment.findOneAndUpdate({ _id: req.body._id }, dataToBeUpdated, {
-    new: true,
-  })
-    .then((appointment) => {
-      if (appointment != null) {
-        res.status(200).send(appointment);
-      } else {
-        res.status(401).send({ message: "Appointment not updated" });
-      }
-    })
-    .catch((err) =>
-      res.status(401).send({ message: `Update failed with error: ${err}` })
-    );
-};
-
 const deleteUrl = (req, res, next) => {
   const entityToBeDeleted = {
-    _id: req.body._id,
+    id: req.params.id,
   };
-  Appointment.deleteOne(entityToBeDeleted)
+  Url.deleteOne(entityToBeDeleted)
     .then((result) =>
       res.status(200).send({ message: `Deleted ${result.deletedCount} item` })
     )
@@ -76,14 +56,57 @@ const deleteUrl = (req, res, next) => {
     );
 };
 
+const getLogging = async (req, res, next) => {
+  const { id } = req.params;
+  const url = await Url.findById(Mongoose.Types.ObjectId(id)).populate(
+    "loggings"
+  );
+  const logData = [];
+  for (const logId of url.logging) {
+    const logObject = await Logging.findById(logId);
+    logData.push(logObject);
+  }
+  res.send(logData);
+};
+
 const getShortUrl = (req, res, next) => {
   const { short } = req.params;
-  Url.findOne({ short }).then((shortUrl) => {
-    // @TODO check if it expires then also show 400 error page
+  Url.findOne({ short }).then(async (shortUrl) => {
+    /**
+     * Check if short url is exists in database or not
+     */
     if (!shortUrl) {
-      res.status(400).send({ message: "Oops! Page not found" });
+      res.status(404).send({ message: "Oops! Page not found" });
       return;
     }
+
+    /**
+     * Check for link expiration
+     */
+    const { _id, expire } = shortUrl;
+    if (expire !== null) {
+      const isExpire = moment(expire).diff(moment(), "minutes") <= 0;
+      if (isExpire) {
+        res.status(401).send({ message: "Sorry! Link Expired" });
+        return;
+      }
+    }
+
+    /**
+     * Log the data
+     */
+    const logging = await Logging.create({
+      ip_address: req.connection.remoteAddress,
+      user_agent: req.get("User-Agent"),
+      url: Mongoose.Types.ObjectId(_id),
+    });
+    await logging.save();
+
+    const urlById = await Url.findById(Mongoose.Types.ObjectId(_id));
+
+    urlById.logging.push(logging);
+    await urlById.save();
+
     res.status(200).redirect(shortUrl.full);
   });
 };
@@ -92,7 +115,7 @@ module.exports = {
   getApiStatus: getApiStatus,
   getUrls: getUrls,
   addUrl: addUrl,
-  updateUrl: updateUrl,
   deleteUrl: deleteUrl,
+  getLogging: getLogging,
   getShortUrl: getShortUrl,
 };

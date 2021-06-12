@@ -1,9 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { useStyles } from "../styles";
 import DatePicker from "react-datepicker";
-import moment from "moment";
 import "react-datepicker/dist/react-datepicker.css";
-import { client, formatDate } from "../utils";
+import { client, convertDate } from "../utils";
 import { API_URL } from "../constants";
 
 import {
@@ -15,9 +14,12 @@ import {
   Switch,
 } from "@material-ui/core";
 import CloudUploadIcon from "@material-ui/icons/CloudUpload";
+import { useUrls } from "../context";
 
-const UrlAdd = ({ loading, error, setError, shortUrls, setShortUrls }) => {
+const UrlAdd = () => {
   const classes = useStyles();
+  const { setError, shortUrls, setShortUrls } = useUrls();
+  const [loading, setLoading] = useState(false);
   const [state, setState] = React.useState({
     fullUrl: "",
     enableLogging: false,
@@ -37,18 +39,18 @@ const UrlAdd = ({ loading, error, setError, shortUrls, setShortUrls }) => {
   const handleOnSubmit = (event) => {
     event.preventDefault();
     const { fullUrl, enableLogging, expire } = state;
-
-    console.log(fullUrl, enableLogging, expire);
-    console.log(API_URL);
-
+    setLoading(true);
     client(API_URL + "url", {
       data: { fullUrl, enableLogging, expire },
     })
       .then((shortUrl) => {
-        setShortUrls([...shortUrls, shortUrl]);
+        setShortUrls([shortUrl, ...shortUrls]);
+        setError(false);
+        setLoading(false);
       })
       .catch(({ message }) => {
         setError(message);
+        setLoading(false);
       });
     /**
      * Reset input fields
@@ -71,6 +73,7 @@ const UrlAdd = ({ loading, error, setError, shortUrls, setShortUrls }) => {
               fullWidth
               value={state.fullUrl}
               onChange={handleOnChange}
+              placeholder="https://google.com"
             />
           </Box>
           <Box flexGrow={1} className={classes.formFieldRow}>
@@ -93,7 +96,7 @@ const UrlAdd = ({ loading, error, setError, shortUrls, setShortUrls }) => {
               onChange={(pickedDate) => {
                 setState({
                   ...state,
-                  expire: formatDate(pickedDate),
+                  expire: convertDate(pickedDate),
                 });
               }}
               showTimeSelect
@@ -110,7 +113,11 @@ const UrlAdd = ({ loading, error, setError, shortUrls, setShortUrls }) => {
             startIcon={<CloudUploadIcon />}
             disabled={!state.fullUrl.length > 0}
           >
-            {loading ? <span aria-label="loading">...</span> : "Shrink"}
+            {loading ? (
+              <span aria-label="loading">Processing...</span>
+            ) : (
+              "Shrink"
+            )}
           </Button>
         </form>
       </Box>

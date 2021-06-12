@@ -2,31 +2,32 @@ import React from "react";
 import { Container, Typography } from "@material-ui/core";
 import UrlAdd from "./components/UrlAdd";
 import UrlListing from "./components/UrlListing";
-import { useGetShortUrls } from "./hooks/use-get-short-urls";
+import { UrlsProvider } from "./context";
+
+import { ErrorBoundary } from "react-error-boundary";
+
+function ErrorFallback({ error }) {
+  return (
+    <div role="alert">
+      <p>Something went wrong:</p>
+      <pre style={{ color: "red" }}>{error.message}</pre>
+    </div>
+  );
+}
 
 const UrlShortener = () => {
-  const { loading, error, setError, shortUrls, setShortUrls } =
-    useGetShortUrls();
   return (
-    <Container maxWidth="md">
-      <Typography variant="h3" component="h1" gutterBottom>
-        URL Shortener
-      </Typography>
-      <UrlAdd
-        shortUrls={shortUrls}
-        loading={loading}
-        error={error}
-        setError={setError}
-        setShortUrls={setShortUrls}
-      />
-      <UrlListing
-        shortUrls={shortUrls}
-        loading={loading}
-        error={error}
-        setError={setError}
-        setShortUrls={setShortUrls}
-      />
-    </Container>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <Container maxWidth="md">
+        <Typography variant="h3" component="h1" gutterBottom>
+          URL Shortener
+        </Typography>
+        <UrlsProvider>
+          <UrlAdd />
+          <UrlListing />
+        </UrlsProvider>
+      </Container>
+    </ErrorBoundary>
   );
 };
 

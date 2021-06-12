@@ -18,6 +18,7 @@ const Logging = new Schema(
   },
   {
     strict: true,
+    timestamps: true,
   }
 );
 

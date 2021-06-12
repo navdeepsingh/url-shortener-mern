@@ -1,9 +1,15 @@
 const Mongoose = require("mongoose");
 const Schema = Mongoose.Schema;
 const { nanoid } = require("nanoid");
+const { v4: uuidv4 } = require("uuid");
 
 const Url = new Schema(
   {
+    id: {
+      type: String,
+      required: true,
+      default: () => uuidv4(),
+    },
     full: {
       type: String,
       required: true,
@@ -11,7 +17,7 @@ const Url = new Schema(
     short: {
       type: String,
       unique: true,
-      default: () => nanoid(10),
+      default: () => nanoid(8),
     },
     expire: {
       type: Date,
@@ -30,6 +36,7 @@ const Url = new Schema(
   },
   {
     strict: true,
+    timestamps: true,
   }
 );
 
