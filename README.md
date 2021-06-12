@@ -16,7 +16,7 @@ MongoDB Atlas - https://www.mongodb.com/cloud/atlas
 
 ### Server
 
-Add `.env` file at root with correct mongodb database url
+Go to `server` folder and add `.env` file at root with correct mongodb database url
 
 ```
 DATABASE_URL=mongodb://localhost:27017/url_shortener
@@ -40,9 +40,10 @@ Next go to `client` folder and run these commands:
 `yarn install`\
 `yarn start`
 
-once the app is running you can open:\
+once the app is running you can open:
 
-API: http://localhost:5000/api/status\
+API: `http://localhost:5000/api/status`, `http://localhost:5000/api/urls`
+
 UI: http://localhost:3000
 
 on your browser.
