@@ -1,12 +1,15 @@
 require("dotenv").config();
 var mongoose = require("mongoose");
 var express = require("express");
+const expressip = require("express-ip");
 var bodyParser = require("body-parser");
 const { getShortUrl } = require("./api/controller");
 var app = express();
 
 //If there is a .env file so it will read PORT variable if not then 5000
 const PORT = process.env.PORT || 5000;
+
+app.use(expressip().getIpInfoMiddleware);
 
 //To avoid that stupid deprecated warning
 mongoose.Promise = global.Promise;

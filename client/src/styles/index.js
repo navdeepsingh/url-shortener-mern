@@ -39,6 +39,12 @@ export const useStyles = makeStyles({
   modal: {
     fontFamily: "system-ui",
   },
+  modalContent: {
+    maxHeight: "500px",
+  },
+  modalContentInner: {
+    maxHeight: "400px",
+  },
   modalButtonClose: {
     position: "absolute",
     right: 0,

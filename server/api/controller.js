@@ -71,6 +71,7 @@ const getLogging = async (req, res, next) => {
 
 const getShortUrl = (req, res, next) => {
   const { short } = req.params;
+  const ipInfo = req.ipInfo;
   Url.findOne({ short }).then(async (shortUrl) => {
     /**
      * Check if short url is exists in database or not
@@ -96,7 +97,7 @@ const getShortUrl = (req, res, next) => {
      * Log the data
      */
     const logging = await Logging.create({
-      ip_address: req.connection.remoteAddress,
+      ip_address: ipInfo.ip,
       user_agent: req.get("User-Agent"),
       url: Mongoose.Types.ObjectId(_id),
     });

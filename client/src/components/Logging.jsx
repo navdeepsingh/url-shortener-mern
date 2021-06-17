@@ -9,12 +9,14 @@ import {
   Paper,
 } from "@material-ui/core";
 import { formatDate } from "../utils";
+import { useStyles } from "../styles";
 
 const Logging = ({ data: logging }) => {
+  const classes = useStyles();
   return (
-    <>
+    <div className={classes.modalContent}>
       <h3>Logging</h3>
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} className={classes.modalContentInner}>
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
@@ -44,7 +46,7 @@ const Logging = ({ data: logging }) => {
           </TableBody>
         </Table>
       </TableContainer>
-    </>
+    </div>
   );
 };
 

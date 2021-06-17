@@ -10,6 +10,7 @@ export function useGetShortUrls() {
   React.useEffect(() => {
     setLoading(true);
     setError(false);
+    console.log(`${API_URL}urls`);
     client(`${API_URL}urls`)
       .then((shortUrls) => {
         setShortUrls(shortUrls);
